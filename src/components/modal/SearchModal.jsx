@@ -54,7 +54,7 @@ const SearchModal = ({ isOpen, onClose, children }) => {
       zIndex={2}
       alignItems="center"
       padding={1}
-      marginTop={'10%'}
+      marginTop={'5%'}
       
     >
       <Button
