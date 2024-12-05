@@ -53,8 +53,8 @@ const SearchModal = ({ isOpen, onClose, children }) => {
       overflow="hidden"
       zIndex={2}
       alignItems="center"
-      padding={1}
-      marginTop={'5%'}
+      
+      
       
     >
       <Button
@@ -73,39 +73,40 @@ const SearchModal = ({ isOpen, onClose, children }) => {
         <FontAwesomeIcon icon={faClose} color="white" />
       </Button>
 
-      <Box boxSizing={'border-box'} height={'2rem'}>
-        <TextField
-          variant='standard'
-          value={inputValue}
-          onChange={handle.inputChange}
-          placeholder='movie name'
-          sx={{
-            backgroundColor: 'transparent',
-            border: 'none',
-            borderRadius: '5px',
-            color: 'white',
-            boxShadow: '0 0 3px 1px rgba(251, 251, 252, 0.973)',
-            height : '100%',
-            margin: '0 auto',
-          }}
-          InputProps={{
-            style: {
-              backgroundColor: 'transparent', 
-              border: 'none',
-              borderRadius: '5px',
-              color: 'white',
-              padding : '5px',
-              boxSizing : 'border-box',
-              
-            },
-          }}
-        />
+      <Box boxSizing={'border-box'} 
+           height={'2rem'}>
+      <TextField
+           variant="standard"
+           value={inputValue}
+           onChange={handle.inputChange}
+           placeholder="movie name"
+           sx={{
+               backgroundColor: 'transparent',
+               border: 'none',
+               borderRadius: '5px',
+               color: 'white',
+              //  boxShadow: '0 0 3px 1px rgba(251, 251, 252, 0.973)',
+               height: '100%',
+               margin: '0 auto',
+               
+               '& .MuiInputBase-input': {
+                   backgroundColor: 'transparent',
+                   borderRadius: '5px',
+                   color: 'white',
+                   height : '100%',
+                   boxSizing: 'border-box',
+                   padding : '5px',
+                   },
+                   }}
+                   />
       </Box>
 
       <Box 
-        overflow={'scroll'} width={'100%'} maxHeight={'29rem'} marginY={'1rem'}
+        overflow={'scroll'} width={'100%'} maxHeight={'28rem'} marginY={'0.5rem'}
         display={'grid'} gridTemplateColumns={{sm : 'repeat(2,1fr)', md : 'repeat(3,1fr)', lg : 'repeat(4,1fr)'}}
-                         gridTemplateRows={{sm : 'repeat(6,1fr)', md : 'repeat(4,1fr)', lg : 'repeat(3,1fr)'}} rowGap={1.5}
+                         gridTemplateRows={{sm : 'repeat(6,1fr)', md : 'repeat(4,1fr)', lg : 'repeat(3,1fr)'}} 
+                         rowGap={1.5}
+                         justifyItems={'center'}
                          sx={{
                           overflowX : 'hidden',
                           '&::-webkit-scrollbar': {

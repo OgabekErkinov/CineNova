@@ -1,13 +1,15 @@
+import action from "/genres/action.png"
+
 export const genres = [
     {
       "id": 28,
       "name": "Action",
-      "image" : '/genres/action.png'
+      "image" : action
     },
     {
       "id": 12,
       "name": "Adventure",
-      "image" : '/genres/adventure.webp'
+      "image" : "/genres/adventure.webp"
     },
     {
       "id": 16,
