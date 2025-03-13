@@ -1,117 +1,175 @@
-import { useEffect, useState } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSearch } from '@fortawesome/free-solid-svg-icons'
-import {Link} from 'react-router-dom'
-import { Avatar, List, ListItem, Stack, Typography, useMediaQuery } from '@mui/material'
+import { useState } from 'react';
+import { AppBar, Toolbar, Typography, IconButton, Switch, Box, Avatar, List, ListItem, useMediaQuery, Drawer, MenuItem, Button, TextField } from '@mui/material';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { Link } from 'react-router-dom';
+import Logo from '/logo.png';
+import SearchModal from '../modal/SearchModal';
+import useModalStore from '../../store/store';
 
-import Logo from '../../assets/Logo.png'
-import SearchModal from '../modal/SearchModal'
 
 const Header = () => {
-    const isSmall = useMediaQuery('(max-Width : 430px)')
-    const isMedium = useMediaQuery('(max-width : 900px)')
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    const { darkMode, themeColors, toggleDarkMode, isSearchModalOpen, 
+            toggleSearchModal, setSearchInputValue, searchInputValue} = useModalStore();
+
+    const isSmall = useMediaQuery('(max-width: 430px)');
+    const isMedium = useMediaQuery('(max-width: 900px)');
+
+    const handleSearchChange = (e) => {
+        setSearchInputValue(e.target.value);
+        
+        if (e.target.value.length > 0 && !isSearchModalOpen) {
+            toggleSearchModal(true);  // Modalni ochish
+        } else if (e.target.value.length === 0 && isSearchModalOpen) {
+            toggleSearchModal(false); // Modalni yopish
+        }
+    };
+    
+
+    const handleDrawerToggle = () => {
+        setDrawerOpen(!drawerOpen);
+    };
 
     const arrayLinks = [
-        {title : 'home' , path : '/'},
-        {title : 'about' , path : '/about'},
-        {title : 'byGenre' , path : '/search'}
-      ]
-  
-      const [isModalOpen, setIsModalOpen] = useState(false);
+        { title: 'Home', path: '/' },
+        { title: 'About', path: '/about' },
+        { title: 'Genres', path: '/search' },
+    ];
 
-      const handleModalClose = () => {
-        setIsModalOpen(false)
-      }
+    return (
+        <Box width="100%" height="12vh" position='fixed' top={0} zIndex={5}>
+            <AppBar position="static" sx={{ width: '100%', height: '100%', backgroundColor: themeColors.background }}>
+                <Toolbar sx={{ height: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    {/* Logo & Search for larger screens */}
+                    <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+                        <Avatar src={Logo} alt="Logo" sx={{ width: isSmall || isMedium ? '50px' : '48px', height: '48px' }} />
+                        {!isSmall && !isMedium && (
+                            <Typography variant="h6" sx={{ color: themeColors.color, fontSize: '24px', ml: '8px' }}>
+                                CineNova
+                            </Typography>
+                        )}
+                    </Link>
 
-      useEffect(() => {
-        if (isModalOpen) {
-          // Skrollni bloklash
-          document.body.style.overflow = 'hidden';
-        } else {
-          // Skrollni qayta yoqish
-          document.body.style.overflow = 'auto';
-        }})
-      
-  return (
-      <Stack width={'95%'} 
-             height={'10rem'} 
-             padding={'0.5rem 1rem'} 
-             marginBottom={'1rem'}
-             borderBottom={'1px solid blue'} 
-            //  borderRadius={'0 0 10px 10px'} 
-             boxSizing={'border-box'}>
- 
-         <Stack  direction={!(isSmall || isMedium) ? 'row' : 'column'} 
-                 justifyContent={'space-around'} 
-                 alignItems={'center'} 
-                 padding={'0 10px'} 
-                 width={'100%'} 
-                 height={'100%'}>
+                    {/* Search Input */}
+                    <TextField
+                        variant="outlined"
+                        placeholder="Search..."
+                        value={searchInputValue}
+                        onChange={handleSearchChange} // Qidiruvni boshqarish
+                        sx={{
+                            backgroundColor: themeColors.inputBackground,
+                            width: '200px',
+                            '& .MuiInputBase-root': {
+                                color: themeColors.color,
+                            },
+                            '& .MuiOutlinedInput-root': {
+                                borderRadius: '20px',
+                                '&:focus': {
+                                    borderColor: 'transparent',
+                                },
+                            },
+                            '&:focus-within': {
+                                width: '100%',
+                                minWidth: '200px',
+                                maxWidth: '300px',
+                                transition: 'width 0.3s ease',
+                                outline: 'none',
+                                border: 'none',
+                            },
+                            '@media (max-width: 600px)': {
+                                '&:focus-within': {
+                                    width: '200px',
+                                },
+                            },
+                        }}
+                    />
 
-         <Link to = '/' 
-               style={{textDecoration : 'none'}}>
-              <Stack direction={'row'} 
-                     alignItems={'center'} 
-                     gap={'1.5rem'} 
-                     fontSize={'1.5rem'} 
-                     color={'aliceblue'}>
-                
-              <Avatar src={Logo} 
-                      alt="Logo" 
-                      sx={{ height: (isSmall || isMedium) ? '50px' : '100%', 
-                            width : (isSmall || isMedium) ? '50px' : '8rem' }} />
-              <Typography display={'flex'} 
-                          fontSize={'1.5rem'}>
-                            movie<span style = {{color : 'blue'}}>
-                                      App
-                                  </span>
-              </Typography>
+                    {/* Desktop Menu */}
+                    {!isSmall && !isMedium && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <List sx={{ display: 'flex', gap: '1rem', padding: 0 }}>
+                                {arrayLinks.map((el, idx) => (
+                                    <ListItem key={idx}>
+                                        <Link to={el.path} style={{ textDecoration: 'none', color: themeColors.color, fontSize: '18px' }}>
+                                            {el.title}
+                                        </Link>
+                                    </ListItem>
+                                ))}
+                                <ListItem sx={{ display: 'inline', padding: '0' }}>
+                                    <Button onClick={() => toggleSearchModal()} sx={{ color: themeColors.color }}>
+                                        Contact
+                                    </Button>
+                                </ListItem>
+                                <ListItem sx={{ display: 'inline', padding: '0' }}>
+                                    <Switch
+                                        checked={darkMode}
+                                        onChange={toggleDarkMode}
+                                        sx={{
+                                            '& .MuiSwitch-switchBase.Mui-checked': {
+                                                color: themeColors.color,
+                                            },
+                                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                                backgroundColor: themeColors.background,
+                                            },
+                                        }}
+                                    />
+                                </ListItem>
+                            </List>
+                        </Box>
+                    )}
 
-              </Stack>
-         </Link>
+                    {/* Mobile Menus */}
+                    {isSmall || isMedium ? (
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <IconButton sx={{ color: themeColors.color }} onClick={handleDrawerToggle}>
+                                <FontAwesomeIcon icon={drawerOpen ? faTimes : faBars} />
+                            </IconButton>
+                        </Box>
+                    ) : null}
+                </Toolbar>
+            </AppBar>
 
-      <List sx={{display : 'flex', 
-                 justifyContent : 'center', 
-                 alignItems : 'center', 
-                 listStyle : 'none', 
-                 height : '100%', 
-                 gap : '5px', 
-                 fontSize : '1.5rem'}}>
-      {arrayLinks?.map((el,idx)=>{
-                    return <ListItem key={idx} sx={{ borderRadius : '5px', 
-                                                     border : '0.5px solid blue', 
-                                                     padding : '5px', 
-                                                     mb : '1rem', 
-                                                     transition : '0.4s', 
-                                                     color : 'blue',
-                                                    '&:hover' : {transition : '0.4s', 
-                                                                 transform : 'scale(1.1)'}}}>
-                              <Link to={el.path} 
-                                    style={{textDecoration : 'none'}}> 
-                                    {el.title} 
-                              </Link> 
+            {/* Mobile Menu Drawer */}
+            <Drawer anchor="right" open={drawerOpen} onClose={handleDrawerToggle}>
+                <Box sx={{
+                    width: 250,
+                    height : '100vh',
+                    padding: '1rem',
+                    backgroundColor: themeColors.background,
+                    color: themeColors.color,
+                }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Avatar src={Logo} alt="Logo" sx={{ width: '40px', height: '40px' }} />
+                        <Typography variant="h6" sx={{ color: themeColors.color, fontSize: '20px' }}>
+                            Movie Info
+                        </Typography>
+                        <IconButton sx={{ color: themeColors.color }} onClick={handleDrawerToggle}>
+                            <FontAwesomeIcon icon={faTimes} />
+                        </IconButton>
+                    </Box>
 
-                           </ListItem>
-            })}
-            <ListItem  onClick={() => setIsModalOpen(true)} sx={{borderRadius : '5px', 
-                                                                 border : '0.5px solid blue', 
-                                                                 padding : '5px', mb : '1rem', 
-                                                                 transition : '0.4s', 
-                                                                 '&:hover' : {transition : '0.4s', 
-                                                                              transform : 'scale(1.1)'}}}>
-                 <FontAwesomeIcon icon={faSearch} color='blue' 
-                                 />
-             </ListItem>  
-             <SearchModal isOpen={isModalOpen} onClose={handleModalClose}/>
+                    {arrayLinks.map((el, idx) => (
+                        <MenuItem key={idx} onClick={handleDrawerToggle}>
+                            <Link to={el.path} style={{ textDecoration: 'none', color: themeColors.color }}>
+                                {el.title}
+                            </Link>
+                        </MenuItem>
+                    ))}
 
+                    {/* Contact Button in Drawer */}
+                    <MenuItem onClick={() => toggleSearchModal()}>
+                        <Button sx={{ color: themeColors.color }}>
+                            Contact
+                        </Button>
+                    </MenuItem>
+                </Box>
+            </Drawer>
 
-      </List>
+            {/* Search Modal */}
+            <SearchModal isOpen={isSearchModalOpen} onClose={toggleSearchModal} />
+        </Box>
+    );
+};
 
-         </Stack>
-
-      </Stack>
-
-  )
-}
-
-export default Header
+export default Header;

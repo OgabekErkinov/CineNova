@@ -1,8 +1,10 @@
 import {  CircularProgress, Link, Typography } from "@mui/material"
 import { toSinglePage } from "../../utils/helperCode"
 import {imageUrl} from "../../utils/imageUrl"
+import useUIStore from "../../store/store"
 
 const SwiperItem = ({item, isLoading}) => {
+  const {themeColors} = useUIStore()
   if(isLoading){
     return (
       <CircularProgress/>
@@ -15,15 +17,15 @@ const SwiperItem = ({item, isLoading}) => {
                style={{height : '100%', width : '100%'}}/>
           <Typography zIndex={1}
                       position={'absolute'}
-                      color={'white'}
-                      fontSize={{sm : '4px', md : '8px', lg : '10px'}}
+                      color={themeColors.color}
+                      fontSize={{sm : '12px', md : '14px', lg : '18px'}}
                       overflow={'hidden'}
                       fontWeight={700}
-                      bgcolor={'rgba(12, 12, 85, 0.24)'}
+                      bgcolor={themeColors.background}
                       width={'100%'}
                       paddingX={'5px'}
                       boxSizing={'border-box'}
-                      bottom={'8px'}>{item?.title}
+                      bottom={'8px'}>{item?.title?.split('').slice(0,16).join('')}
           </Typography>                            
       </Link>
     )

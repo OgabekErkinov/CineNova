@@ -1,19 +1,29 @@
-import { Box } from '@mui/material'
+import { Box } from '@mui/material';
+import PropTypes from 'prop-types';
+import useUIStore from '../../store/store';
 
-const HeaderSection = ({sectionTitle}) => {
+const HeaderSection = ({ sectionTitle }) => {
+  const { themeColors } = useUIStore();
+
   return (
-    <Box height={'3rem'} 
-         width={'95%'} 
-         textAlign={'start'} 
-         fontSize={'2rem'} 
-         fontWeight={'700'} 
-         color={'blue'}
-         marginX={'auto'}
-         >
-       {sectionTitle}
+    <Box
+      sx={{
+        height: { xs: '24px', md: '28px', lg: '32px' },
+        my : '12px',
+        width: '95%',
+        textAlign: 'left',
+        fontSize: '24px',
+        fontWeight: '700',
+        color: themeColors.color,
+      }}
+    >
+      {sectionTitle}
     </Box>
-    
-  )
-}
+  );
+};
 
-export default HeaderSection
+HeaderSection.propTypes = {
+  sectionTitle: PropTypes.string.isRequired,
+};
+
+export default HeaderSection;

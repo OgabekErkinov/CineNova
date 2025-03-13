@@ -2,9 +2,11 @@ import { Swiper, SwiperSlide } from 'swiper/react'
 import { Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import SwiperItem from './SwiperItem';
+import useUIStore from '../../store/store';
 
 
 const CustomSwiper = ({array, error, pending}) => {
+  const {themeColors} = useUIStore()
 
   let isLoading = (error || pending) ? true : false
   return (
@@ -30,7 +32,7 @@ const CustomSwiper = ({array, error, pending}) => {
             return item.backdrop_path ? (
                        <SwiperSlide key={idx}
                                     style={{
-                                     border: '1px solid blue',
+                                     border: `1px solid ${themeColors.color}`,
                                      borderRadius: '5px',
                                      padding: '5px',
                                      boxSizing: 'border-box',

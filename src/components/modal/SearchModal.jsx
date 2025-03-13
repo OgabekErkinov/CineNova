@@ -1,158 +1,122 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClose } from '@fortawesome/free-solid-svg-icons';
 import { useState, useEffect } from 'react';
-import { Box, Button, Stack, TextField } from '@mui/material';
+import { Box, Button, Stack, Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
-import { createPortal } from 'react-dom';
-
 import { useDebounce } from '../../hook/useDebounce';
 import MyPagination from '../pagination/MyPagination';
 import SwiperItem from '../swiper/SwiperItem';
 import { getSearchedMovie } from '../../services/service.Api';
+import useUIStore from '../../store/store';
 
-const SearchModal = ({ isOpen, onClose, children }) => {
-  if(!isOpen) {
-    return null
-  }
-
-  const [inputValue, setInputValue] = useState('');
-  const { debounceValue } = useDebounce(inputValue);
+const SearchModal = () => {
+  const { isSearchModalOpen, toggleSearchModal, searchInputValue, themeColors } = useUIStore();
+  const { debounceValue } = useDebounce(searchInputValue);
 
   const { data, isError, isPending } = useQuery({
     queryKey: ['searchedMovies', debounceValue],
     queryFn: () => getSearchedMovie(debounceValue),
+    enabled: Boolean(debounceValue),
   });
 
-  const searchPerView = 13;
+  const searchPerView = 12;
   const [currentSearchPage, setCurrentSearchPage] = useState(1);
   const [searchPageCount, setSearchPageCount] = useState(1);
 
   useEffect(() => {
     setSearchPageCount(Math.ceil((data?.length || 0) / searchPerView));
   }, [data]);
+
   const firstIndex = (currentSearchPage - 1) * searchPerView;
   const lastIndex = currentSearchPage * searchPerView;
-
   const isLoading = isPending || isError;
 
-  const handle = {
-    searchChange: (e, p) => setCurrentSearchPage(p),
-    inputChange: (e) => setInputValue(e.target.value),
-  };
-
   return (
-    createPortal(
-      <Stack
-      height='auto'
-      width="90%"
-      border="1px solid rgb(21, 11, 173)"
-      borderRadius="10px"
-      boxSizing='border-box'
-      bgcolor="rgba(69, 68, 104, 0.8)"
+    <Stack
+      display={isSearchModalOpen ? 'flex' : 'none'}
+      flexDirection="column"
+      height="90vh"
+      width="100%"
+      py={3}
+      px={2}
+      borderRadius="12px"
+      bgcolor={themeColors.background}
       position="fixed"
-      overflow="hidden"
-      zIndex={2}
+      top="10vh"
+      left="0"
+      zIndex={10}
       alignItems="center"
-      
-      
-      
+      justifyContent="center"
+      sx={{ backdropFilter: 'blur(10px)' }}
     >
       <Button
+        aria-label="Close Search Modal"
         sx={{
-          height: '3rem',
-          width: '3rem',
-          borderRadius: '50%',
-          marginLeft: 'auto',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          boxSizing : 'border-box'
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          color: themeColors.color,
         }}
-        onClick={onClose}
+        onClick={toggleSearchModal}
       >
-        <FontAwesomeIcon icon={faClose} color="white" />
+        <FontAwesomeIcon icon={faClose} fontSize="24px" />
       </Button>
 
-      <Box boxSizing={'border-box'} 
-           height={'2rem'}>
-      <TextField
-           variant="standard"
-           value={inputValue}
-           onChange={handle.inputChange}
-           placeholder="movie name"
-           sx={{
-               backgroundColor: 'transparent',
-               border: 'none',
-               borderRadius: '5px',
-               color: 'white',
-              //  boxShadow: '0 0 3px 1px rgba(251, 251, 252, 0.973)',
-               height: '100%',
-               margin: '0 auto',
-               
-               '& .MuiInputBase-input': {
-                   backgroundColor: 'transparent',
-                   borderRadius: '5px',
-                   color: 'white',
-                   height : '100%',
-                   boxSizing: 'border-box',
-                   padding : '5px',
-                   },
-                   }}
-                   />
-      </Box>
-
-      <Box 
-        overflow={'scroll'} width={'100%'} maxHeight={'28rem'} marginY={'0.5rem'}
-        display={'grid'} gridTemplateColumns={{sm : 'repeat(2,1fr)', md : 'repeat(3,1fr)', lg : 'repeat(4,1fr)'}}
-                         gridTemplateRows={{sm : 'repeat(6,1fr)', md : 'repeat(4,1fr)', lg : 'repeat(3,1fr)'}} 
-                         rowGap={1.5}
-                         justifyItems={'center'}
-                         sx={{
-                          overflowX : 'hidden',
-                          '&::-webkit-scrollbar': {
-                            width: '8px', 
-                          },
-                          '&::-webkit-scrollbar-thumb': {
-                            backgroundColor: '#888', 
-                            borderRadius: '10px', 
-                          },
-                          '&::-webkit-scrollbar-track': {
-                            backgroundColor: '#f1f1f1', 
-                          },
-                          '&::-webkit-scrollbar-thumb:hover': {
-                            backgroundColor: '#555', 
-                          },
-                        }}
-
-        >
-      
+      {/* Filmlar uchun scroll qismi */}
+      <Box
+        width="90%"
+        maxHeight="65vh"
+        overflowY="auto"
+        display="grid"
+        gridTemplateColumns={{
+          xs: 'repeat(2, 1fr)',
+          sm: 'repeat(3, 1fr)',
+          md: 'repeat(4, 1fr)',
+        }}
+        rowGap={2}
+        justifyItems="center"
+        sx={{
+          overflowX: 'hidden',
+          '&::-webkit-scrollbar': { width: '6px' },
+          '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px' },
+          '&::-webkit-scrollbar-track': { backgroundColor: '#f1f1f1' },
+          '&::-webkit-scrollbar-thumb:hover': { backgroundColor: '#555' },
+        }}
+      >
         {data?.slice(firstIndex, lastIndex).map((item, idx) => (
-          item.backdrop_path && 
-          <Box key={idx}
-               height={'10rem'} 
-               width={'16rem'} 
-               border={'1px solid blue'} 
-               padding={'5px'} 
-               marginX={'5px'} 
-               boxSizing={'border-box'} 
-               position={'relative'}
-               borderRadius={'5px'}
-               overflow={'hidden'}>
-               <SwiperItem item={item} isLoading={isLoading}  />
-          </Box>
-            
-          ))}
+          item.backdrop_path && (
+            <Box
+              key={idx}
+              height="10rem"
+              width="16rem"
+              border={`1px solid ${themeColors.color}`}
+              position="relative"
+              borderRadius="8px"
+              overflow="hidden"
+              boxShadow="0px 4px 15px rgba(0, 0, 0, 0.2)"
+              sx={{
+                transition: 'transform 0.3s ease',
+                '&:hover': { transform: 'scale(1.05)' },
+              }}
+            >
+              <SwiperItem item={item} isLoading={isLoading} />
+            </Box>
+          )
+        ))}
       </Box>
 
-      <MyPagination
-        countPages={searchPageCount}
-        handleChangePagination={handle.searchChange}
-      />
-    </Stack>,
-    document.getElementById('root')
+      {!isLoading && data?.length === 0 && (
+        <Typography variant="h6" color={themeColors.color} mt={2}>
+          Hech narsa topilmadi
+        </Typography>
+      )}
 
-    )
-   
+      {data?.length > 0 && (
+        <Box width="100%" height="10vh" display="flex" alignItems="center" justifyContent="center">
+          <MyPagination countPages={searchPageCount} handleChangePagination={setCurrentSearchPage} />
+        </Box>
+      )}
+    </Stack>
   );
 };
 
