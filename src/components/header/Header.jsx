@@ -4,14 +4,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import Logo from '/logo.png';
-import SearchModal from '../modal/SearchModal';
-import useModalStore from '../../store/store';
+import useUIStore from '../../store/store';
+import useSearchStore from '../../store/search';
+import useContactStore from '../../store/contact';
 
 
 const Header = () => {
     const [drawerOpen, setDrawerOpen] = useState(false);
-    const { darkMode, themeColors, toggleDarkMode, isSearchModalOpen, 
-            toggleSearchModal, setSearchInputValue, searchInputValue} = useModalStore();
+    const { darkMode, themeColors, toggleDarkMode} = useUIStore();
+    const { openSearchModal, closeSearchModal, setSearchInputValue, isSearchModalOpen, searchInputValue} = useSearchStore();
+    const {openContactModal} = useContactStore()
 
     const isSmall = useMediaQuery('(max-width: 430px)');
     const isMedium = useMediaQuery('(max-width: 900px)');
@@ -20,10 +22,15 @@ const Header = () => {
         setSearchInputValue(e.target.value);
         
         if (e.target.value.length > 0 && !isSearchModalOpen) {
-            toggleSearchModal(true);  // Modalni ochish
+            openSearchModal();  // Modalni ochish
         } else if (e.target.value.length === 0 && isSearchModalOpen) {
-            toggleSearchModal(false); // Modalni yopish
+            closeSearchModal(); // Modalni yopish
         }
+    };
+
+    const handleOpenContact = () => {
+        console.log("Contact modal ochildi!");
+        openContactModal();
     };
     
 
@@ -97,7 +104,7 @@ const Header = () => {
                                     </ListItem>
                                 ))}
                                 <ListItem sx={{ display: 'inline', padding: '0' }}>
-                                    <Button onClick={() => toggleSearchModal()} sx={{ color: themeColors.color }}>
+                                    <Button onClick={handleOpenContact} sx={{ color: themeColors.color }}>
                                         Contact
                                     </Button>
                                 </ListItem>
@@ -139,10 +146,10 @@ const Header = () => {
                     backgroundColor: themeColors.background,
                     color: themeColors.color,
                 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb:'12px' }}>
                         <Avatar src={Logo} alt="Logo" sx={{ width: '40px', height: '40px' }} />
                         <Typography variant="h6" sx={{ color: themeColors.color, fontSize: '20px' }}>
-                            Movie Info
+                            CineNova
                         </Typography>
                         <IconButton sx={{ color: themeColors.color }} onClick={handleDrawerToggle}>
                             <FontAwesomeIcon icon={faTimes} />
@@ -158,16 +165,13 @@ const Header = () => {
                     ))}
 
                     {/* Contact Button in Drawer */}
-                    <MenuItem onClick={() => toggleSearchModal()}>
+                    <MenuItem onClick={openContactModal}>
                         <Button sx={{ color: themeColors.color }}>
                             Contact
                         </Button>
                     </MenuItem>
                 </Box>
             </Drawer>
-
-            {/* Search Modal */}
-            <SearchModal isOpen={isSearchModalOpen} onClose={toggleSearchModal} />
         </Box>
     );
 };

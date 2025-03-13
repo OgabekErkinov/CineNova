@@ -1,10 +1,19 @@
-import { Box, Modal, Typography, TextField, Button, CircularProgress, Snackbar, Alert } from '@mui/material';
+import { 
+  Box, Modal, Typography, TextField, Button, 
+  CircularProgress, Snackbar, Alert 
+} from '@mui/material';
 import { useState } from 'react';
 import axios from 'axios';
+import useContactStore from '../../store/contact';
 import useUIStore from '../../store/store';
 
+const TELEGRAM_BOT_TOKEN = import.meta.env.VITE_TELEGRAM_BOT_TOKEN;
+const CHAT_ID = '8158030030';
+
 const ContactModal = () => {
-  const { isModalOpen, toggleModal } = useUIStore();
+  const { isContactModalOpen, closeContactModal } = useContactStore();
+  const { themeColors } = useUIStore();
+
   const [phoneNumber, setPhoneNumber] = useState('');
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -12,22 +21,18 @@ const ContactModal = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [toastOpen, setToastOpen] = useState(false);
 
-  const handlePhoneChange = (e) => {
-    // Faqat raqamlarni qabul qilish
-    const onlyNumbers = e.target.value.replace(/[^0-9]/g, '');
-    setPhoneNumber(onlyNumbers);
+  const clearForm = () => {
+    setPhoneNumber('');
+    setMessage('');
     setPhoneError('');
   };
 
-  const handleMessageChange = (e) => {
-    setMessage(e.target.value);
+  const handlePhoneChange = (e) => {
+    setPhoneNumber(e.target.value.replace(/[^0-9+]/g, ''));
+    setPhoneError('');
   };
 
-  const validatePhoneNumber = (number) => {
-    // Telefon raqami formatini tekshirish (faqat raqamlar)
-    const phoneRegex = /^[0-9]{9,15}$/;
-    return phoneRegex.test(number);
-  };
+  const validatePhoneNumber = (number) => /^\+?[0-9]{9,15}$/.test(number);
 
   const handleSubmit = async () => {
     if (!validatePhoneNumber(phoneNumber)) {
@@ -35,53 +40,63 @@ const ContactModal = () => {
       return;
     }
 
-    if (!message) {
+    if (!message.trim()) {
       setToastMessage('Xabar bo‘sh bo‘lishi mumkin emas!');
       setToastOpen(true);
       return;
     }
 
     setIsLoading(true);
-
     try {
-      // Telegram bot API uchun xabar yuborish
-      const response = await axios.post('https://api.telegram.org/bot7233756330:AAH_B4OyL4YYOhLmdIH-Ewbjb1loksFJ3h0/sendMessage', {
-        chat_id: '8158030030',
-        text: `Yangi xabar:\nTelefon raqami: ${phoneNumber}\nXabar: ${message}`,
+      const response = await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        chat_id: CHAT_ID,
+        text: `\ud83d\udce9 *Yangi xabar*\n\ud83d\udcde *Telefon raqami:* ${phoneNumber}\n\ud83d\udcdd *Xabar:* ${message}`,
+        parse_mode: 'Markdown',
       });
 
       if (response.status === 200) {
-        setToastMessage('Xabar yuborildi!');
-        setToastOpen(true);
+        setToastMessage('✅ Xabar yuborildi!');
+        clearForm();
       }
-    } catch (error) {
-      setToastMessage('Xatolik yuz berdi!');
-      setToastOpen(true);
+    } catch {
+      setToastMessage('❌ Xatolik yuz berdi!');
     } finally {
+      setToastOpen(true);
       setIsLoading(false);
-      toggleModal();  // Modalni yopish
+      closeContactModal();
     }
   };
 
   return (
     <>
-      <Modal open={isModalOpen} onClose={toggleModal}>
+      <Modal open={isContactModalOpen} onClose={closeContactModal}>
         <Box
           sx={{
-            width: '400px',
-            padding: '20px',
-            backgroundColor: 'white',
-            borderRadius: '8px',
+            width: '90%',
+            maxWidth: '400px',
+            bgcolor: themeColors.background,
+            borderRadius: 2,
+            p: 3,
             position: 'absolute',
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            color: 'black', // text color black
+            boxShadow: 24,
+            textAlign: 'center',
           }}
         >
-          <Typography variant="h6" mb={2} sx={{ color: 'black' }}>
+          {/* LOGO */}
+          <Box display='flex' justifyContent='center'>
+            <Box component='img' src='/logo.png' height='28px' width='28px' />
+            <Typography variant="h5" fontWeight="bold" color={themeColors.color} mb={2}>
+              CineNova
+            </Typography>
+          </Box>
+
+          <Typography variant="h6" mb={2} color={themeColors.color}>
             Biz bilan bog'laning
           </Typography>
+
           <TextField
             label="Telefon raqami"
             value={phoneNumber}
@@ -90,60 +105,56 @@ const ContactModal = () => {
             margin="normal"
             error={!!phoneError}
             helperText={phoneError}
-            sx={{ input: { color: 'black' }, label: { color: 'black' } }}
+            sx={{
+              "& .MuiInputBase-input": { color: themeColors.color },
+              "& .MuiInputLabel-root": { color: themeColors.color },
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": { borderColor: themeColors.color },
+                "&:hover fieldset": { borderColor: themeColors.color },
+              },
+            }}
           />
+
           <TextField
             label="Xabar"
             value={message}
-            onChange={handleMessageChange}
+            onChange={(e) => setMessage(e.target.value)}
             fullWidth
             margin="normal"
             multiline
             rows={4}
-            sx={{ input: { color: 'black' }, label: { color: 'black' } }}
+            sx={{
+              "& .MuiInputBase-input": { color: themeColors.color },
+              "& .MuiInputLabel-root": { color: themeColors.color },
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": { borderColor: themeColors.color },
+                "&:hover fieldset": { borderColor: themeColors.color },
+              },
+            }}
           />
+
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-            <Button
-              variant="outlined"
-              onClick={toggleModal}
-              sx={{
-                color: 'black',
-                borderColor: 'black',
-                '&:hover': { borderColor: 'black', backgroundColor: 'transparent' },
-              }}
+            <Button 
+              variant="outlined" 
+              sx={{ bgcolor: themeColors.color, color: themeColors.background }} 
+              onClick={closeContactModal}
             >
               Yopish
             </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleSubmit}
+            <Button 
+              variant="contained" 
+              sx={{ color: themeColors.background, bgcolor: themeColors.color }} 
+              onClick={handleSubmit} 
               disabled={isLoading}
-              sx={{
-                backgroundColor: 'black',
-                '&:hover': { backgroundColor: '#333' },
-                display: 'flex',
-                alignItems: 'center',
-              }}
             >
-              {isLoading ? (
-                <CircularProgress size={24} sx={{ marginRight: '10px' }} />
-              ) : (
-                'Yuborish'
-              )}
+              {isLoading ? <CircularProgress size={24} /> : 'Yuborish'}
             </Button>
           </Box>
         </Box>
       </Modal>
 
-      {/* Snackbar Toast */}
-      <Snackbar
-        open={toastOpen}
-        autoHideDuration={3000}
-        onClose={() => setToastOpen(false)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert severity={toastMessage.includes('Xatolik') ? 'error' : 'success'} sx={{ width: '100%' }}>
+      <Snackbar open={toastOpen} autoHideDuration={3000} onClose={() => setToastOpen(false)}>
+        <Alert severity={toastMessage.includes('Xatolik') ? 'error' : 'success'}>
           {toastMessage}
         </Alert>
       </Snackbar>

@@ -1,18 +1,8 @@
-import { create } from 'zustand';
+import { create } from "zustand";
+
 
 const useUIStore = create((set) => ({
-  // Modal state
-  isModalOpen: false,
-  toggleModal: () => set((state) => ({ isModalOpen: !state.isModalOpen })),
-
-  isSearchModalOpen: false,
-  toggleSearchModal: () => set((state) => ({ isSearchModalOpen: !state.isSearchModalOpen })),
-
-  // Search input state
-  searchInputValue: '',
-  setSearchInputValue: (payload) => set({ searchInputValue: payload }),
-
-  // Dark mode state
+  // Dark mode
   darkMode: false,
   themeColors: {
     background: 'rgba(41, 41, 41, 0.8)',
@@ -26,4 +16,5 @@ const useUIStore = create((set) => ({
   })),
 }));
 
-export default useUIStore;
+
+export default useUIStore

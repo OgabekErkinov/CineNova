@@ -8,15 +8,17 @@ import MyPagination from '../pagination/MyPagination';
 import SwiperItem from '../swiper/SwiperItem';
 import { getSearchedMovie } from '../../services/service.Api';
 import useUIStore from '../../store/store';
+import useSearchStore from '../../store/search';
 
 const SearchModal = () => {
-  const { isSearchModalOpen, toggleSearchModal, searchInputValue, themeColors } = useUIStore();
-  const { debounceValue } = useDebounce(searchInputValue);
+  const { themeColors } = useUIStore();
+  const { isSearchModalOpen, toggleSearchModal, searchInputValue} = useSearchStore()
+  const debounceValue = useDebounce(searchInputValue);
 
   const { data, isError, isPending } = useQuery({
     queryKey: ['searchedMovies', debounceValue],
     queryFn: () => getSearchedMovie(debounceValue),
-    enabled: Boolean(debounceValue),
+    enabled: !!(debounceValue),
   });
 
   const searchPerView = 12;
@@ -37,12 +39,12 @@ const SearchModal = () => {
       flexDirection="column"
       height="90vh"
       width="100%"
-      py={3}
+      py={4}
       px={2}
       borderRadius="12px"
       bgcolor={themeColors.background}
       position="fixed"
-      top="10vh"
+      top="12vh"
       left="0"
       zIndex={10}
       alignItems="center"
@@ -66,16 +68,17 @@ const SearchModal = () => {
       <Box
         width="90%"
         maxHeight="65vh"
-        overflowY="auto"
         display="grid"
         gridTemplateColumns={{
-          xs: 'repeat(2, 1fr)',
-          sm: 'repeat(3, 1fr)',
-          md: 'repeat(4, 1fr)',
+          xs: '1fr',
+          sm: 'repeat(2, 1fr)',
+          md: 'repeat(3, 1fr)',
+          lg : 'repeat(4,1fr)'
         }}
         rowGap={2}
         justifyItems="center"
         sx={{
+          overflowY:'auto',
           overflowX: 'hidden',
           '&::-webkit-scrollbar': { width: '6px' },
           '&::-webkit-scrollbar-thumb': { backgroundColor: '#888', borderRadius: '10px' },
