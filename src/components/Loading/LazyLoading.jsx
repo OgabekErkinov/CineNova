@@ -1,13 +1,14 @@
 import { CircularProgress } from '@mui/material'
 import { Stack } from '@mui/system'
-import React from 'react'
 
 const LazyLoading = () => {
   return (
-    <Stack justifyContent={'center'} 
+    <Stack  height='100%'
+            width='100%'
+           justifyContent={'center'} 
            alignItems={'center'} 
            color={'blue'}>
-        <CircularProgress size={'medium'}/>
+        <CircularProgress size={'medium'} color='white'/>
     </Stack>
   )
 }

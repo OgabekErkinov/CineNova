@@ -13,7 +13,7 @@ import useSearchStore from '../../store/search';
 const SearchModal = () => {
   const { themeColors } = useUIStore();
   const { isSearchModalOpen, toggleSearchModal, searchInputValue} = useSearchStore()
-  const debounceValue = useDebounce(searchInputValue);
+  const {debounceValue} = useDebounce(searchInputValue);
 
   const { data, isError, isPending } = useQuery({
     queryKey: ['searchedMovies', debounceValue],
